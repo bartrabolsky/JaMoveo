@@ -7,6 +7,8 @@ function Login() {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
+        role: '',
+        instrument: '',
     });
 
     const [message, setMessage] = useState('');
@@ -14,6 +16,8 @@ function Login() {
     function handleChange(event: any) {
         const name = event.target.name;
         const value = event.target.value;
+        // const role = event.target.value;
+        // const instrument = event.target.value;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
@@ -32,10 +36,16 @@ function Login() {
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
+                console.log('data role:', data.role);
                 setMessage('Login successful!');
-                navigate('/dashboard');
+
+                if (data.role === 'admin') {
+                    navigate('/AdminMain');
+                } else {
+                    navigate('/player');
+                }
             } else {
-                setMessage(data.message || 'Login failed');
+                setMessage('Login failed');
             }
         } catch {
             setMessage('Server error');

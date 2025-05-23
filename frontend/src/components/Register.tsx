@@ -24,6 +24,8 @@ function Register() {
         setMessage('');
 
         try {
+            console.log('Response data:', formData);
+
             const response = await fetch('http://localhost:5000/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -31,12 +33,17 @@ function Register() {
             });
 
             const data = await response.json();
+            console.log("111", data);
 
             if (response.ok) {
-                console.log('Response data:', data);
-                navigate('/dashboard');
+
+                if (data.userRole === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/player');
+                }
             } else {
-                setMessage(data.message || 'Error occurred');
+                setMessage('Error occurred');
             }
         } catch {
             setMessage('Server error');

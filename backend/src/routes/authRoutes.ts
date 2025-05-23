@@ -54,7 +54,7 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
 
         await user.save();
 
-        res.status(201).json({ message: 'User created successfully' });
+        res.status(201).json({ message: 'User created successfully', userRole });
     } catch (error: unknown) {
         console.error('Signup error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -89,8 +89,9 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
             jwtSecret,
             { expiresIn: '1h' }
         );
+        console.log('role:', user.role);
 
-        res.json({ token });
+        res.json({ token, role: user.role });
 
     } catch (error: unknown) {
         console.error('Login error:', error);

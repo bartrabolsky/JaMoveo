@@ -24,7 +24,7 @@ if (!MONGO_URI) {
 app.use(cors());
 app.use(express.json());
 
-
+app.use('/api', authRoutes);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('hello backend is running');
@@ -37,10 +37,6 @@ app.get('/', (req: Request, res: Response) => {
 mongoose.connect(MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.error('MongoDB connection error:', err));
-
-
-app.use('/api', authRoutes);
-
 
 
 
