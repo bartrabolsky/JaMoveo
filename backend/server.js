@@ -9,13 +9,12 @@ const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-// וידוא ש-Port הוא מספר, אחרת ברירת מחדל 5000
+
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-// וידוא שה-MONGO_URI מוגדר
 const MONGO_URI = process.env.MONGO_URI;
 if (!MONGO_URI) {
     console.error('Error: MONGO_URI is not defined in environment variables.');
-    process.exit(1); // יציאה עם שגיאה
+    process.exit(1);
 }
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());

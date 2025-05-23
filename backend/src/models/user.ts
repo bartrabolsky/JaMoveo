@@ -12,7 +12,7 @@ const userSchema: Schema<IUser> = new Schema({
     password: { type: String, required: true },
     instrument: {
         type: String,
-        required: true,
+        required: false,
         enum: ['none', 'drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'], // הוספתי 'none'
         default: 'none',
     },

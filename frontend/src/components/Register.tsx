@@ -1,44 +1,47 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-interface RegisterData {
-    username: string;
-    password: string;
-    instrument: string;
-    role: string;
-}
+function Register() {
+    const navigate = useNavigate();
 
-const Register: React.FC = () => {
-    const [formData, setFormData] = useState<RegisterData>({
+    const [formData, setFormData] = useState({
         username: '',
         password: '',
         instrument: 'drums',
         role: 'user'
     });
 
-    const [message, setMessage] = useState<string>('');
+    const [message, setMessage] = useState('');
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    function handleChange(event: any) {
+        const name = event.target.name;
+        const value = event.target.value;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    async function handleSubmit(event: any) {
+        event.preventDefault();
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/signup', {
+            const response = await fetch('http://localhost:5000/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
             const data = await response.json();
-            setMessage(data.message);
-        } catch (error) {
+
+            if (response.ok) {
+                console.log('Response data:', data);
+                navigate('/dashboard');
+            } else {
+                setMessage(data.message || 'Error occurred');
+            }
+        } catch {
             setMessage('Server error');
         }
-    };
+    }
 
     return (
         <div>
@@ -76,12 +79,12 @@ const Register: React.FC = () => {
                             onChange={handleChange}
                             required
                         >
-                            <option value="drums">Drums</option>
-                            <option value="guitars">Guitars</option>
-                            <option value="bass">Bass</option>
-                            <option value="saxophone">Saxophone</option>
-                            <option value="keyboards">Keyboards</option>
-                            <option value="vocals">Vocals</option>
+                            <option value="drums">drums</option>
+                            <option value="guitars">guitars</option>
+                            <option value="bass">bass</option>
+                            <option value="saxophone">saxophone</option>
+                            <option value="keyboards">keyboards</option>
+                            <option value="vocals">vocals</option>
                         </select>
                     </div>
                 )}
@@ -107,6 +110,6 @@ const Register: React.FC = () => {
             </form>
         </div>
     );
-};
+}
 
 export default Register;

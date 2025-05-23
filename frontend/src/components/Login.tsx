@@ -1,29 +1,28 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-interface LoginData {
-    username: string;
-    password: string;
-}
+function Login() {
+    const navigate = useNavigate();
 
-const Login: React.FC = () => {
-    const [formData, setFormData] = useState<LoginData>({
+    const [formData, setFormData] = useState({
         username: '',
         password: '',
     });
 
-    const [message, setMessage] = useState<string>('');
+    const [message, setMessage] = useState('');
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    function handleChange(event: any) {
+        const name = event.target.name;
+        const value = event.target.value;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    async function handleSubmit(event: any) {
+        event.preventDefault();
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -32,17 +31,16 @@ const Login: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Save token to localStorage
                 localStorage.setItem('token', data.token);
                 setMessage('Login successful!');
-                // Optionally redirect here
+                navigate('/dashboard');
             } else {
                 setMessage(data.message || 'Login failed');
             }
-        } catch (error) {
+        } catch {
             setMessage('Server error');
         }
-    };
+    }
 
     return (
         <div>
@@ -79,6 +77,6 @@ const Login: React.FC = () => {
             </form>
         </div>
     );
-};
+}
 
-export default Login; 
+export default Login;
