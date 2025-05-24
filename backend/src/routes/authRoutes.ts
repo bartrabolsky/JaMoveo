@@ -54,7 +54,6 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
 
         await user.save();
 
-        // ✅ עדכון שורת התגובה
         res.status(201).json({
             message: 'User created successfully',
             id: user._id,

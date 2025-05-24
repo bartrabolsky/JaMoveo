@@ -7,7 +7,7 @@ const userSchema = new mongoose_1.Schema({
     instrument: {
         type: String,
         required: true,
-        enum: ['none', 'drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'], // הוספתי 'none'
+        enum: ['none', 'drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'],
         default: 'none',
     },
     role: {

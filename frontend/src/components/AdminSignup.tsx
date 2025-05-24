@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { socket } from '../socket';
 
-function Login() {
+function AdminSignup() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         username: '',
         password: '',
+        role: 'admin',
     });
 
     const [message, setMessage] = useState('');
 
-    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleChange(event: any) {
         const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: any) {
         event.preventDefault();
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('http://localhost:5000/api/admin-signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -31,32 +32,26 @@ function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('token', data.token);
-
-                localStorage.setItem('user', JSON.stringify({
-                    id: data.id,
-                    username: data.username,
-                    instrument: data.instrument,
-                    role: data.role,
-                }));
-
-                setMessage('Login successful!');
+                localStorage.setItem(
+                    'user',
+                    JSON.stringify({
+                        id: data.id,
+                        username: formData.username,
+                        role: formData.role,
+                    })
+                );
 
                 socket.connect();
 
                 socket.emit('user_login', {
                     userId: data.id,
-                    role: data.role,
-                    instrument: data.instrument,
+                    role: formData.role,
+                    instrument: null,
                 });
 
-                if (data.role === 'admin') {
-                    navigate('/admin');
-                } else {
-                    navigate('/player');
-                }
+                navigate('/admin');
             } else {
-                setMessage('Login failed');
+                setMessage('Error occurred');
             }
         } catch {
             setMessage('Server error');
@@ -65,7 +60,7 @@ function Login() {
 
     return (
         <div>
-            <h2>Login</h2>
+            <h2>Admin Signup</h2>
             {message && <p>{message}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
@@ -90,14 +85,14 @@ function Login() {
                     />
                 </div>
 
-                <button type="submit">Login</button>
+                <button type="submit">Register</button>
 
                 <p>
-                    Don't have an account? <Link to="/signup">Sign up here</Link>
+                    Already have an account? <Link to="/login">Login here</Link>
                 </p>
             </form>
         </div>
     );
 }
 
-export default Login;
+export default AdminSignup;

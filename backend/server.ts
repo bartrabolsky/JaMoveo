@@ -4,7 +4,9 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import http from 'http';
 import authRoutes from './src/routes/authRoutes';
-import { setupSocket } from './utils/socket';
+import songRoutes from './src/routes/songRoutes';
+import { setupSocket } from './src/utils/socket';
+
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api', authRoutes);
+app.use('/api', songRoutes);
+
 
 app.get('/', (req: Request, res: Response) => {
     res.send('hello backend is running');

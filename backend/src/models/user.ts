@@ -13,7 +13,7 @@ const userSchema: Schema<IUser> = new Schema({
     instrument: {
         type: String,
         required: false,
-        enum: ['none', 'drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'], // הוספתי 'none'
+        enum: ['none', 'drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'],
         default: 'none',
     },
     role: {

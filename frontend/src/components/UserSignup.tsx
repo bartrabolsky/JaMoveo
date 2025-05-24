@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { socket } from '../socket';
 
-function Register() {
+function UserSignup() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         instrument: 'drums',
-        role: 'user'
+        role: 'user',
     });
 
     const [message, setMessage] = useState('');
 
     function handleChange(event: any) {
-        const name = event.target.name;
-        const value = event.target.value;
+        const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
@@ -32,15 +31,17 @@ function Register() {
             });
 
             const data = await response.json();
-            console.log('Signup response:', data);
 
             if (response.ok) {
-                localStorage.setItem('user', JSON.stringify({
-                    id: data.id,
-                    username: formData.username,
-                    instrument: formData.instrument,
-                    role: formData.role,
-                }));
+                localStorage.setItem(
+                    'user',
+                    JSON.stringify({
+                        id: data.id,
+                        username: formData.username,
+                        instrument: formData.instrument,
+                        role: formData.role,
+                    })
+                );
 
                 socket.connect();
 
@@ -50,11 +51,7 @@ function Register() {
                     instrument: formData.instrument,
                 });
 
-                if (formData.role === 'admin') {
-                    navigate('/admin');
-                } else {
-                    navigate('/player');
-                }
+                navigate('/player');
             } else {
                 setMessage('Error occurred');
             }
@@ -65,7 +62,7 @@ function Register() {
 
     return (
         <div>
-            <h2>Register</h2>
+            <h2>User Signup</h2>
             {message && <p>{message}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
@@ -90,35 +87,20 @@ function Register() {
                     />
                 </div>
 
-                {formData.role !== 'admin' && (
-                    <div>
-                        <label>Instrument:</label><br />
-                        <select
-                            name="instrument"
-                            value={formData.instrument}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="drums">drums</option>
-                            <option value="guitars">guitars</option>
-                            <option value="bass">bass</option>
-                            <option value="saxophone">saxophone</option>
-                            <option value="keyboards">keyboards</option>
-                            <option value="vocals">vocals</option>
-                        </select>
-                    </div>
-                )}
-
                 <div>
-                    <label>Role:</label><br />
+                    <label>Instrument:</label><br />
                     <select
-                        name="role"
-                        value={formData.role}
+                        name="instrument"
+                        value={formData.instrument}
                         onChange={handleChange}
                         required
                     >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="drums">drums</option>
+                        <option value="guitars">guitars</option>
+                        <option value="bass">bass</option>
+                        <option value="saxophone">saxophone</option>
+                        <option value="keyboards">keyboards</option>
+                        <option value="vocals">vocals</option>
                     </select>
                 </div>
 
@@ -132,4 +114,4 @@ function Register() {
     );
 }
 
-export default Register;
+export default UserSignup;
