@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { socket } from '../socket'; // ✅ ייבוא socket
 
 function Register() {
     const navigate = useNavigate();
@@ -24,8 +25,6 @@ function Register() {
         setMessage('');
 
         try {
-            console.log('Response data:', formData);
-
             const response = await fetch('http://localhost:5000/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -33,11 +32,21 @@ function Register() {
             });
 
             const data = await response.json();
-            console.log("111", data);
+            console.log('Signup response:', data);
 
             if (response.ok) {
+                // ✅ התחברות ל־socket
+                socket.connect();
 
-                if (data.userRole === 'admin') {
+                // ✅ שידור לשרת
+                socket.emit('user_login', {
+                    userId: data.id, // נניח שמוחזר — נוודא בהמשך
+                    role: formData.role,
+                    instrument: formData.instrument,
+                });
+
+                // ✅ ניתוב לפי תפקיד
+                if (formData.role === 'admin') {
                     navigate('/admin');
                 } else {
                     navigate('/player');

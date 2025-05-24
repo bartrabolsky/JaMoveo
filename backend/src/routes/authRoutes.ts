@@ -54,12 +54,20 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
 
         await user.save();
 
-        res.status(201).json({ message: 'User created successfully', userRole });
+        // ✅ עדכון שורת התגובה
+        res.status(201).json({
+            message: 'User created successfully',
+            id: user._id,
+            role: user.role,
+            instrument: user.instrument,
+        });
+
     } catch (error: unknown) {
         console.error('Signup error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -91,7 +99,13 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         );
         console.log('role:', user.role);
 
-        res.json({ token, role: user.role });
+        res.json({
+            token,
+            id: user._id,
+            role: user.role,
+            instrument: user.instrument,
+        });
+
 
     } catch (error: unknown) {
         console.error('Login error:', error);

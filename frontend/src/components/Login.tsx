@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { socket } from '../socket'; // ודאי שהנתיב נכון
 
 function Login() {
     const navigate = useNavigate();
@@ -7,21 +8,16 @@ function Login() {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
-        role: '',
-        instrument: '',
     });
 
     const [message, setMessage] = useState('');
 
-    function handleChange(event: any) {
-        const name = event.target.name;
-        const value = event.target.value;
-        // const role = event.target.value;
-        // const instrument = event.target.value;
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    async function handleSubmit(event: any) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setMessage('');
 
@@ -33,12 +29,25 @@ function Login() {
             });
 
             const data = await response.json();
+            // console.log('Logged in user data:', data);
+
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
                 console.log('data role:', data.role);
                 setMessage('Login successful!');
 
+                // 🟡 התחברות ל־socket
+                socket.connect();
+
+                // 🟡 שידור פרטי המשתמש לשרת
+                socket.emit('user_login', {
+                    userId: data.id,           // ודאי שהשדה נכון לפי מה שאת מחזירה מהשרת
+                    role: data.role,
+                    instrument: data.instrument,
+                });
+
+                // 🟡 ניתוב לפי תפקיד
                 if (data.role === 'admin') {
                     navigate('/AdminMain');
                 } else {
