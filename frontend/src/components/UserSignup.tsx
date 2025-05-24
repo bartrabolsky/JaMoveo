@@ -61,55 +61,83 @@ function UserSignup() {
     }
 
     return (
-        <div>
-            <h2>User Signup</h2>
-            {message && <p>{message}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username:</label><br />
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+        <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center p-6 text-white">
+            <div className="max-w-md w-full bg-gray-900 bg-opacity-70 rounded-lg p-8 shadow-lg">
+                <h2 className="text-3xl font-bold mb-6 text-center">User Signup</h2>
 
-                <div>
-                    <label>Password:</label><br />
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                {message && (
+                    <p className="mb-4 text-center text-red-400 font-semibold">{message}</p>
+                )}
 
-                <div>
-                    <label>Instrument:</label><br />
-                    <select
-                        name="instrument"
-                        value={formData.instrument}
-                        onChange={handleChange}
-                        required
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block mb-2 font-semibold" htmlFor="username">
+                            Username:
+                        </label>
+                        <input
+                            id="username"
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Enter your username"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block mb-2 font-semibold" htmlFor="password">
+                            Password:
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Enter your password"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block mb-2 font-semibold" htmlFor="instrument">
+                            Instrument:
+                        </label>
+                        <select
+                            id="instrument"
+                            name="instrument"
+                            value={formData.instrument}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="drums">drums</option>
+                            <option value="guitars">guitars</option>
+                            <option value="bass">bass</option>
+                            <option value="saxophone">saxophone</option>
+                            <option value="keyboards">keyboards</option>
+                            <option value="vocals">vocals</option>
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full bg-indigo-700 hover:bg-indigo-600 transition-colors py-3 rounded-md text-lg font-semibold shadow-md"
                     >
-                        <option value="drums">drums</option>
-                        <option value="guitars">guitars</option>
-                        <option value="bass">bass</option>
-                        <option value="saxophone">saxophone</option>
-                        <option value="keyboards">keyboards</option>
-                        <option value="vocals">vocals</option>
-                    </select>
-                </div>
+                        Register
+                    </button>
+                </form>
 
-                <button type="submit">Register</button>
-
-                <p>
-                    Already have an account? <Link to="/login">Login here</Link>
+                <p className="mt-6 text-center text-gray-300">
+                    Already have an account?{' '}
+                    <Link to="/login" className="text-indigo-400 hover:underline">
+                        Login here
+                    </Link>
                 </p>
-            </form>
+            </div>
         </div>
     );
 }

@@ -46,67 +46,57 @@ const LiveAdmin = () => {
         navigate('/admin');
     };
 
-    if (!user) return <p>Loading user...</p>;
-    if (!currentSong) return <p>Waiting for song...</p>;
+    if (!user) return <p className="text-center text-white mt-10">Loading user...</p>;
+    if (!currentSong) return <p className="text-center text-white mt-10">Waiting for song...</p>;
+
+    const contentStyle = `
+    .chord { color: #3b82f6; font-weight: bold; } /* כחול בהיר */
+    .lyrics { color: #ffffff; }
+    pre, code {
+      font-family: monospace;
+      white-space: pre-wrap;
+      line-height: 1.8rem;
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  `;
+
+
 
     return (
-        <div style={{
-            backgroundColor: '#000',
-            color: '#fff',
-            padding: '2rem',
-            fontSize: '1.6rem',
-            lineHeight: '2.4rem',
-            height: '100vh',
-            overflowY: 'auto',
-            direction: 'ltr',
-        }}>
-            <h1 style={{ textAlign: 'center', fontSize: '2rem' }}>
-                {currentSong.title} - {currentSong.artist}
-            </h1>
+        <div
+            className="min-h-screen bg-black text-white p-6 overflow-y-auto font-mono text-base sm:text-lg"
+            style={{ direction: 'ltr', lineHeight: 1.3, whiteSpace: 'pre-line' }}
+        >
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 tracking-normal">
+                    {currentSong.title} - {currentSong.artist}
+                </h1>
 
-            <div
-                style={{ marginTop: '2rem' }}
-                dangerouslySetInnerHTML={{ __html: currentSong.contentHtml || '' }}
-            />
+                <div
+                    dangerouslySetInnerHTML={{ __html: currentSong.contentHtml || '' }}
+                />
+            </div>
 
-            <button
-                onClick={() => setAutoScroll(!autoScroll)}
-                style={{
-                    position: 'fixed',
-                    bottom: '1rem',
-                    right: '6rem',
-                    padding: '1rem 1.5rem',
-                    borderRadius: '50%',
-                    backgroundColor: '#fff',
-                    color: '#000',
-                    fontWeight: 'bold',
-                    fontSize: '1.2rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                }}
-            >
-                {autoScroll ? 'Stop' : 'Scroll'}
-            </button>
+            <div className="fixed bottom-6 left-0 right-0 flex justify-center gap-6 px-4">
+                <button
+                    onClick={() => setAutoScroll(!autoScroll)}
+                    className="bg-white text-black font-bold text-lg rounded-full px-6 py-3 shadow-lg hover:bg-gray-200 transition"
+                    aria-label={autoScroll ? 'Stop automatic scrolling' : 'Start automatic scrolling'}
+                >
+                    {autoScroll ? 'Stop' : 'Scroll'}
+                </button>
 
-            <button
-                onClick={handleQuit}
-                style={{
-                    position: 'fixed',
-                    bottom: '1rem',
-                    right: '1rem',
-                    padding: '1rem 1.5rem',
-                    backgroundColor: 'red',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    fontSize: '1rem',
-                    border: 'none',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                }}
-            >
-                Quit
-            </button>
+                <button
+                    onClick={handleQuit}
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold text-base rounded-xl px-6 py-3 shadow-lg transition"
+                    aria-label="Quit rehearsal"
+                >
+                    Quit
+                </button>
+            </div>
         </div>
+
     );
 };
 

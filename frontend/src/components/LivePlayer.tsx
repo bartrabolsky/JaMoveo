@@ -11,9 +11,9 @@ const LivePlayer = () => {
     const [autoScroll, setAutoScroll] = useState(false);
 
     useEffect(() => {
-        if (!currentSong) {
-            navigate('/player');
-        }
+        socket.on('song_selected', (song) => {
+            setCurrentSong(song);
+        });
 
         socket.on('quit_song', () => {
             setCurrentSong(null);
@@ -21,9 +21,16 @@ const LivePlayer = () => {
         });
 
         return () => {
+            socket.off('song_selected');
             socket.off('quit_song');
         };
-    }, [currentSong, navigate, setCurrentSong]);
+    }, [navigate, setCurrentSong]);
+
+    useEffect(() => {
+        if (!currentSong) {
+            navigate('/player');
+        }
+    }, [currentSong, navigate]);
 
     useEffect(() => {
         let interval: any;
@@ -38,49 +45,67 @@ const LivePlayer = () => {
     if (!currentSong || !user) return <p>Loading...</p>;
 
     const isSinger = user.instrument.toLowerCase() === 'vocals';
-    const lyricsLines = currentSong.lyrics?.split('\n') || [];
-    const chordsLines = currentSong.chords?.split('\n') || [];
-    const maxLines = Math.max(lyricsLines.length, chordsLines.length);
+
+    const contentStyle = `
+    .chord { color: #3b82f6; font-weight: bold; }
+    .lyrics { color: #ffffff; }
+    pre, code {
+      font-family: monospace;
+      white-space: pre-wrap;
+      line-height: 1.8rem;
+      font-size: 1.2rem;
+      margin: 0;
+    }
+  `;
+
+    function extractLyricsOnly(html: string): string {
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const lyricsElements = doc.querySelectorAll('.lyrics');
+            if (lyricsElements.length > 0) {
+                let lyricsHtml = '';
+                lyricsElements.forEach((el) => {
+                    lyricsHtml += el.outerHTML;
+                });
+                return lyricsHtml;
+            }
+            return doc.body.textContent || '';
+        } catch {
+            return html;
+        }
+    }
 
     return (
-        <div style={{
-            backgroundColor: '#000',
-            color: '#fff',
-            padding: '2rem',
-            fontSize: '1.6rem',
-            lineHeight: '2.4rem',
-            height: '100vh',
-            overflowY: 'auto',
-        }}>
-            <h1 style={{ textAlign: 'center', fontSize: '2rem' }}>
+        <div
+            style={{
+                backgroundColor: '#000',
+                color: '#fff',
+                padding: '2rem',
+                fontSize: '1.6rem',
+                lineHeight: '2.4rem',
+                height: '100vh',
+                overflowY: 'auto',
+                direction: 'rtl',
+                textAlign: 'right',
+                fontFamily: 'monospace',
+            }}
+        >
+            <style>{contentStyle}</style>
+
+            <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '2rem' }}>
                 {currentSong.title} - {currentSong.artist}
             </h1>
 
             {isSinger ? (
-                <div style={{ whiteSpace: 'pre-wrap', marginTop: '2rem', direction: 'rtl' }}>
-                    {lyricsLines.join('\n')}
-                </div>
+                <div
+                    dangerouslySetInnerHTML={{
+                        __html: extractLyricsOnly(currentSong.contentHtml || ''),
+                    }}
+                />
             ) : (
-                <div style={{ marginTop: '2rem', direction: 'rtl' }}>
-                    {Array.from({ length: maxLines }).map((_, i) => (
-                        <div key={i} style={{ marginBottom: '1.2rem' }}>
-                            <div style={{
-                                fontFamily: 'monospace',
-                                whiteSpace: 'pre',
-                                color: '#00f',
-                                fontWeight: 'bold',
-                            }}>
-                                {chordsLines[i] || ''}
-                            </div>
-                            <div style={{
-                                fontFamily: 'inherit',
-                                whiteSpace: 'pre',
-                            }}>
-                                {lyricsLines[i] || ''}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <div dangerouslySetInnerHTML={{ __html: currentSong.contentHtml || '' }} />
             )}
 
             <button

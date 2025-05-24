@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { socket } from '../socket';
 
 type Song = {
+    rawText: string;
     title: string;
     artist: string;
     link: string;
@@ -19,6 +21,21 @@ const SongContext = createContext<SongContextType | undefined>(undefined);
 
 export const SongProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [currentSong, setCurrentSong] = useState<Song>(null);
+
+    useEffect(() => {
+        socket.on('song_selected', (song: Song) => {
+            setCurrentSong(song);
+        });
+
+        socket.on('quit_song', () => {
+            setCurrentSong(null);
+        });
+
+        return () => {
+            socket.off('song_selected');
+            socket.off('quit_song');
+        };
+    }, []);
 
     return (
         <SongContext.Provider value={{ currentSong, setCurrentSong }}>

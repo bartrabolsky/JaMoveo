@@ -1,45 +1,24 @@
 import { Request, Response } from 'express';
-import User from '../models/user';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import User, { IUser } from '../models/user';
 
-const allowedInstrumentsUser = ['drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'];
-const allowedInstrumentsAdmin = ['none', ...allowedInstrumentsUser];
+async function checkUserExists(username: string): Promise<IUser | null> {
+    return await User.findOne({ username });
+}
 
-export const signup = async (req: Request, res: Response): Promise<void> => {
+export const signupUser = async (req: Request, res: Response): Promise<Response> => {
     try {
-        let { username, password, instrument, role } = req.body;
+        const { username, password, instrument } = req.body;
+        const role = 'user';
 
-        const userRole = role || 'user';
-
-        if (typeof instrument === 'string') {
-            instrument = instrument.toLowerCase();
+        if (await checkUserExists(username)) {
+            return res.status(400).json({ message: 'Username already exists' });
         }
 
-        if (userRole === 'admin') {
-            if (!allowedInstrumentsAdmin.includes(instrument)) {
-                res.status(400).json({ message: 'Invalid instrument selected for admin' });
-                return;
-            }
-        } else {
-            if (!allowedInstrumentsUser.includes(instrument)) {
-                res.status(400).json({ message: 'Invalid instrument selected' });
-                return;
-            }
-        }
-
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            res.status(400).json({ message: 'Username already exists' });
-            return;
-        }
-
-        if (userRole === 'admin') {
-            const existingAdmin = await User.findOne({ role: 'admin' });
-            if (existingAdmin) {
-                res.status(400).json({ message: 'Admin user already exists' });
-                return;
-            }
+        const allowedInstrumentsUser = ['drums', 'guitars', 'bass', 'saxophone', 'keyboards', 'vocals'];
+        if (!allowedInstrumentsUser.includes(instrument)) {
+            return res.status(400).json({ message: 'Invalid instrument selected' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,15 +27,84 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
             username,
             password: hashedPassword,
             instrument,
-            role: userRole,
+            role,
         });
 
         await user.save();
 
-        res.status(201).json({ message: 'User created successfully' });
+        return res.status(201).json({ id: user._id, role: user.role, instrument: user.instrument });
+    } catch (error) {
+        console.error('Signup user error:', error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
 
-    } catch (error: unknown) {
-        console.error('Signup error:', error);
-        res.status(500).json({ message: 'Server error' });
+export const signupAdmin = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { username, password } = req.body;
+        const role = 'admin';
+
+        if (await checkUserExists(username)) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
+        const existingAdmin = await User.findOne({ role: 'admin' });
+        if (existingAdmin) {
+            return res.status(403).json({ message: 'Admin user already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            username,
+            password: hashedPassword,
+            instrument: 'none',
+            role,
+        });
+
+        await user.save();
+
+        return res.status(201).json({ id: user._id, role: user.role, instrument: user.instrument });
+    } catch (error) {
+        console.error('Signup admin error:', error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const login = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { username, password } = req.body;
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            console.error('JWT_SECRET is not defined');
+            return res.status(500).json({ message: 'Server error' });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id, instrument: user.instrument, role: user.role },
+            jwtSecret,
+            { expiresIn: '1h' }
+        );
+
+        return res.json({
+            token,
+            id: user._id,
+            role: user.role,
+            instrument: user.instrument,
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ message: 'Server error' });
     }
 };

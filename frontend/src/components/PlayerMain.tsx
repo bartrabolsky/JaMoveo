@@ -27,8 +27,10 @@ const PlayerMain = () => {
     }, [navigate, setCurrentSong]);
 
     return (
-        <div>
-            <h1>{waiting ? 'Waiting for next song' : 'Song is starting...'}</h1>
+        <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex items-center justify-center p-6 text-white">
+            <h1 className="text-3xl sm:text-4xl font-semibold text-center">
+                {waiting ? 'Waiting for next song' : 'Song is starting...'}
+            </h1>
         </div>
     );
 };
