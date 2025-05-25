@@ -3,9 +3,9 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import http from 'http';
-import authRoutes from './src/routes/authRoutes';
-import songRoutes from './src/routes/songRoutes';
-import { setupSocket } from './src/utils/socket';
+import authRoutes from './routes/authRoutes';
+import songRoutes from './routes/songRoutes';
+import { setupSocket } from './utils/socket';
 
 
 dotenv.config();
