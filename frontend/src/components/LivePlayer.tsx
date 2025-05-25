@@ -14,20 +14,11 @@ const LivePlayer = () => {
     useEffect(() => {
         const handler = (song: Song | null) => {
             if (!song) return;
-
             console.log('User got song_selected:', song);
-
-            if (!currentSong || currentSong.link !== song.link) {
-                setCurrentSong({
-                    ...song,
-                    rawText: song.rawText ?? '',
-                });
-            } else {
-                setCurrentSong({
-                    ...song,
-                    rawText: song.rawText ?? '',
-                });
-            }
+            setCurrentSong({
+                ...song,
+                rawText: song.rawText ?? '',
+            });
         };
 
         socket.on('song_selected', handler);
@@ -35,9 +26,18 @@ const LivePlayer = () => {
         return () => {
             socket.off('song_selected', handler);
         };
-    }, [currentSong, setCurrentSong]);
+    }, [setCurrentSong]);
 
-
+    useEffect(() => {
+        const quitHandler = () => {
+            setCurrentSong(null);
+            navigate('/player');
+        };
+        socket.on('quit_song', quitHandler);
+        return () => {
+            socket.off('quit_song', quitHandler);
+        };
+    }, [navigate, setCurrentSong]);
 
     useEffect(() => {
         if (!currentSong) {
@@ -105,13 +105,9 @@ const LivePlayer = () => {
                     >
                         {currentSong.rawText.split('\n').map((line, idx) => {
                             if (isVocals) {
-                                // vocals — רק שורות אי זוגיות (מילים)
-                                if (idx % 2 === 1) {
-                                    return <div key={idx}>{line}</div>;
-                                }
+                                if (idx % 2 === 1) return <div key={idx}>{line}</div>;
                                 return null;
                             } else {
-                                // שאר המשתמשים — אקורדים (שורות זוגיות) ומילים (אי זוגיות)
                                 if (idx % 2 === 0) {
                                     return (
                                         <div key={idx} style={{ color: '#00e5ff', fontWeight: '700' }}>
