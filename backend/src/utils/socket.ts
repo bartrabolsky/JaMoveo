@@ -2,6 +2,7 @@ import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { getSongContentFromTab4U } from './songScraper';
 
+//setup Socket.IO server with given HTTP server
 export const setupSocket = (server: HTTPServer): void => {
     const io = new SocketIOServer(server, {
         cors: {
@@ -25,10 +26,12 @@ export const setupSocket = (server: HTTPServer): void => {
 
             try {
                 const songContent = await getSongContentFromTab4U(songData.link);
+                console.log('rawText length:', songContent.rawText.length);
 
                 const fullSong = {
                     ...songData,
                     contentHtml: songContent.contentHtml,
+                    rawText: songContent.rawText,
                 };
 
                 io.emit('song_selected', fullSong);

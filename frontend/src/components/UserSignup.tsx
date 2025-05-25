@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { socket } from '../socket';
+import { socket } from '../services/socket';
 
 function UserSignup() {
     const navigate = useNavigate();
-
+    // State to hold form data
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -24,6 +24,7 @@ function UserSignup() {
         setMessage('');
 
         try {
+            // Call backend signup endpoint
             const response = await fetch('http://localhost:5000/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -53,7 +54,7 @@ function UserSignup() {
 
                 navigate('/player');
             } else {
-                setMessage('Error occurred');
+                setMessage('User already exists. Please choose a different username.');
             }
         } catch {
             setMessage('Server error');
@@ -61,6 +62,7 @@ function UserSignup() {
     }
 
     return (
+        // Page styling
         <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center p-6 text-white">
             <div className="max-w-md w-full bg-gray-900 bg-opacity-70 rounded-lg p-8 shadow-lg">
                 <h2 className="text-3xl font-bold mb-6 text-center">User Signup</h2>

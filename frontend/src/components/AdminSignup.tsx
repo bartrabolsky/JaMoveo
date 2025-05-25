@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { socket } from '../socket';
+import { socket } from '../services/socket';
 
 function AdminSignup() {
     const navigate = useNavigate();
@@ -17,7 +17,7 @@ function AdminSignup() {
         const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
-
+    // Handle form submission for admin signup
     async function handleSubmit(event: any) {
         event.preventDefault();
         setMessage('');
@@ -51,14 +51,22 @@ function AdminSignup() {
 
                 navigate('/admin');
             } else {
-                setMessage('Error occurred');
+                if (response.status === 400) {
+                    setMessage('User already exists. Please choose a different username.');
+                } else if (response.status === 403) {
+                    setMessage('An admin user already exists. Only one admin is allowed.');
+                } else {
+                    setMessage(data.message || 'Server error');
+                }
             }
         } catch {
             setMessage('Server error');
         }
     }
 
+
     return (
+        // Page styling
         <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center p-6 text-white">
             <div className="max-w-md w-full bg-gray-900 bg-opacity-70 rounded-lg p-8 shadow-lg">
                 <h2 className="text-3xl font-bold mb-6 text-center">Admin Signup</h2>

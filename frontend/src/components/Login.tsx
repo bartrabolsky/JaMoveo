@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { socket } from '../socket';
+import { socket } from '../services/socket';
 
 function Login() {
     const navigate = useNavigate();
@@ -11,7 +11,7 @@ function Login() {
     });
 
     const [message, setMessage] = useState('');
-
+    // Update form data when input fields change
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -22,6 +22,7 @@ function Login() {
         setMessage('');
 
         try {
+            // Send login request to backend
             const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -67,6 +68,7 @@ function Login() {
     }
 
     return (
+        // Page styling
         <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center p-6 text-white">
             <div className="max-w-md w-full bg-gray-900 bg-opacity-70 rounded-lg p-8 shadow-lg">
                 <h2 className="text-3xl font-bold mb-6 text-center">Login</h2>
@@ -118,8 +120,12 @@ function Login() {
 
                 <p className="mt-6 text-center text-gray-300">
                     Don't have an account?{' '}
-                    <Link to="/signup" className="text-indigo-400 hover:underline">
-                        Sign up here
+                    <Link to="/user-signup" className="text-indigo-400 hover:underline">
+                        Sign up as user
+                    </Link>{' '}
+                    or{' '}
+                    <Link to="/admin-signup" className="text-indigo-400 hover:underline">
+                        Sign up as admin
                     </Link>
                 </p>
             </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { socket } from '../socket';
+import { socket } from '../services/socket';
 
 interface Song {
     title: string;
@@ -17,7 +17,7 @@ const ResultsPage = () => {
 
     useEffect(() => {
         const query = localStorage.getItem('searchQuery') || '';
-
+        // Fetch songs from backend API using the query
         fetch(`http://localhost:5000/api/search-songs?query=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
@@ -35,13 +35,14 @@ const ResultsPage = () => {
                 setLoading(false);
             });
     }, []);
-
+    // Handle user selecting a song
     const handleSelectSong = (song: Song) => {
         socket.emit('select_song', song);
         navigate('/liveadmin');
     };
 
     return (
+        // Page styling
         <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black p-6 text-white">
             <div className="max-w-lg mx-auto">
                 <h1 className="text-3xl font-bold mb-6 text-center">Search Results</h1>

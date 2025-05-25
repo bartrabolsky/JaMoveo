@@ -1,5 +1,7 @@
 import puppeteer from 'puppeteer';
+const cheerio = require('cheerio');
 
+// Search songs on Tab4U site using Puppeteer to automate browser
 export const searchSongsTab4U = async (query: string) => {
     const browser = await puppeteer.launch({
         headless: true,
@@ -25,7 +27,7 @@ export const searchSongsTab4U = async (query: string) => {
         ]);
 
         await page.waitForSelector('div.ruSongUnit', { timeout: 10000 });
-
+        // Extract song info from page DOM
         const results = await page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll('div.ruSongUnit'));
 
@@ -53,7 +55,7 @@ export const searchSongsTab4U = async (query: string) => {
         await browser.close();
     }
 };
-
+// Fetch full song content HTML and raw text from a given song page link
 export const getSongContentFromTab4U = async (link: string) => {
     const browser = await puppeteer.launch({
         headless: true,
@@ -68,7 +70,6 @@ export const getSongContentFromTab4U = async (link: string) => {
 
         const contentHtml = await page.evaluate(() => {
             const container = document.querySelector('#songContentTPL');
-
             if (!container) return '';
 
             const elements = container.querySelectorAll('[onmouseover], [onmouseout], [onclick], [onmouseenter], [onmouseleave]');
@@ -83,13 +84,77 @@ export const getSongContentFromTab4U = async (link: string) => {
             return container.innerHTML;
         });
 
+        const $ = cheerio.load(contentHtml);
+        const chordsLines: string[] = [];
+        const lyricsLines: string[] = [];
+
+        $('table tr').each((_: number, elem: any) => {
+            const chords = $(elem).find('td.chords, td.chords_en').text().trim();
+            const lyrics = $(elem).find('td.song').text().trim();
+
+            chordsLines.push(chords);
+            lyricsLines.push(lyrics);
+        });
+
+        const chords = chordsLines.join('\n');
+        const lyrics = lyricsLines.join('\n');
+
+        const maxLines = Math.max(chordsLines.length, lyricsLines.length);
+        const rawLines: string[] = [];
+
+        for (let i = 0; i < maxLines; i++) {
+            rawLines.push(chordsLines[i] || '');
+            rawLines.push(lyricsLines[i] || '');
+        }
+
+        const rawText = rawLines.join('\n');
+
         return {
             contentHtml,
+            chords,
+            lyrics,
+            rawText
         };
     } catch (error) {
         console.error('Error scraping song content:', error);
-        return { contentHtml: '' };
+        return { contentHtml: '', chords: '', lyrics: '', rawText: '' };
     } finally {
         await browser.close();
     }
 };
+
+
+// Extract raw text (chords and lyrics) from HTML using cheerio
+export const extractRawText = (html: string): string => {
+    if (!html) {
+        console.error('No HTML provided to extractRawText');
+        return '';
+    }
+
+    try {
+        const $ = cheerio.load(html);
+        const lines: string[] = [];
+
+        $('table tr').each((_: number, elem: any) => {
+            const chords = $(elem).find('td.chords, td.chords_en').text().trim();
+            const lyrics = $(elem).find('td.song').text().trim();
+
+            if (chords || lyrics) {
+                lines.push(chords);
+                lines.push(lyrics);
+            }
+        });
+
+        if (lines.length === 0) {
+            console.warn('No lines extracted with updated selectors');
+        }
+
+        return lines.join('\n');
+    } catch (error) {
+        console.error('Failed to load HTML with cheerio:', error);
+        return '';
+    }
+};
+
+
+

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { socket } from '../socket';
+import { socket } from '../services/socket';
 
-type Song = {
+// Define the Song type 
+export type Song = {
     rawText: string;
     title: string;
     artist: string;
@@ -19,6 +20,7 @@ type SongContextType = {
 
 const SongContext = createContext<SongContextType | undefined>(undefined);
 
+// Provider component to wrap app parts needing song context
 export const SongProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [currentSong, setCurrentSong] = useState<Song>(null);
 
@@ -44,6 +46,7 @@ export const SongProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
+// Custom hook to consume song context easily
 export const useSong = () => {
     const context = useContext(SongContext);
     if (!context) {

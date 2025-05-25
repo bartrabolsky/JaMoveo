@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
-import { socket } from './socket';
+import { socket } from './services/socket';
 import PlayerMain from './components/PlayerMain';
 import AdminMain from './components/AdminMain';
 import ResultsPage from './components/ResultsPage';

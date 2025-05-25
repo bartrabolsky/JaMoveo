@@ -3,6 +3,7 @@ import { searchSongsTab4U, getSongContentFromTab4U } from '../utils/songScraper'
 
 const router = express.Router();
 
+// Route to search songs on Tab4U by query parameter
 router.get('/search-songs', (req: Request, res: Response): void => {
     (async () => {
         const query = req.query.query as string;
@@ -26,6 +27,7 @@ router.get('/search-songs', (req: Request, res: Response): void => {
     })();
 });
 
+// Route to get detailed song content by link parameter
 router.get('/get-song-content', async (req: Request, res: Response): Promise<void> => {
     const link = req.query.link as string;
 

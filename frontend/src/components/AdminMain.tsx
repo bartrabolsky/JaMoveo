@@ -5,6 +5,7 @@ const AdminMain = () => {
     const [query, setQuery] = useState('');
     const navigate = useNavigate();
 
+    // Function to handle search button click
     const handleSearch = () => {
         if (query.trim()) {
             localStorage.setItem('searchQuery', query);
@@ -13,6 +14,7 @@ const AdminMain = () => {
     };
 
     return (
+        // Page styling
         <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-black flex flex-col items-center justify-center p-6 text-white">
             <div className="max-w-md w-full">
                 <h1 className="text-3xl font-bold mb-6 text-center">Search any song...</h1>

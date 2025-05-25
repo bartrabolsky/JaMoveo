@@ -3,10 +3,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/user';
 
+// check if a user  already exists
 async function checkUserExists(username: string): Promise<IUser | null> {
     return await User.findOne({ username });
 }
 
+// User signup handler
 export const signupUser = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { username, password, instrument } = req.body;
@@ -39,6 +41,7 @@ export const signupUser = async (req: Request, res: Response): Promise<Response>
     }
 };
 
+// Admin signup handler (only one admin allowed)
 export const signupAdmin = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { username, password } = req.body;
@@ -71,6 +74,7 @@ export const signupAdmin = async (req: Request, res: Response): Promise<Response
     }
 };
 
+//Login handler
 export const login = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { username, password } = req.body;
