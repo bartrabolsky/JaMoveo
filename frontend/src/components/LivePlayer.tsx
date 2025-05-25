@@ -59,18 +59,18 @@ const LivePlayer = () => {
 
     const isVocals = user.instrument === 'vocals';
 
+    // ... כל ההתחלה כמו בקוד שלך עד return
+
     return (
         <div
             ref={scrollContainerRef}
             className="min-h-screen text-white p-6 overflow-y-auto font-sans text-base sm:text-lg"
             style={{
                 direction: 'rtl',
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap',
                 background: `
-                    linear-gradient(135deg, #1f2937 0%, #3b4252 100%),
-                    repeating-radial-gradient(circle at 0 0, #2c3e50 0, #2c3e50 2px, #1f2937 3px, #1f2937 5px)
-                `,
+                linear-gradient(135deg, #1f2937 0%, #3b4252 100%),
+                repeating-radial-gradient(circle at 0 0, #2c3e50 0, #2c3e50 2px, #1f2937 3px, #1f2937 5px)
+            `,
                 backgroundBlendMode: 'overlay',
                 backgroundRepeat: 'no-repeat',
                 backgroundAttachment: 'fixed',
@@ -90,36 +90,37 @@ const LivePlayer = () => {
                 </h1>
 
                 {currentSong.rawText ? (
-                    <pre
-                        style={{
-                            fontFamily: '"Fira Mono", monospace',
-                            fontSize: '1.1rem',
-                            lineHeight: '1.8rem',
-                            marginBottom: '4rem',
-                            direction: 'rtl',
-                            textAlign: 'right',
-                            color: '#eee',
-                            whiteSpace: 'pre-wrap',
-                            letterSpacing: '0.05em',
-                        }}
-                    >
+                    <div style={{ fontFamily: '"Fira Mono", monospace', fontSize: '1.1rem', lineHeight: '1.8rem', marginBottom: '4rem' }}>
                         {currentSong.rawText.split('\n').map((line, idx) => {
                             if (isVocals) {
-                                if (idx % 2 === 1) return <div key={idx}>{line}</div>;
-                                return null;
-                            } else {
-                                if (idx % 2 === 0) {
+                                // vocals - רק מילים (שורות אי זוגיות, אינדקס אי זוגי)
+                                if (idx % 2 === 1) {
                                     return (
-                                        <div key={idx} style={{ color: '#00e5ff', fontWeight: '700' }}>
+                                        <div key={idx} style={{ padding: '2px 0' }}>
                                             {line}
                                         </div>
                                     );
                                 } else {
-                                    return <div key={idx}>{line}</div>;
+                                    return null;
+                                }
+                            } else {
+                                // שחקנים אחרים - אקורדים (שורות זוגיות) בצבע מיוחד + מילים רגילות (אי זוגיות)
+                                if (idx % 2 === 0) {
+                                    return (
+                                        <div key={idx} style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>
+                                            {line}
+                                        </div>
+                                    );
+                                } else {
+                                    return (
+                                        <div key={idx} style={{ padding: '2px 0' }}>
+                                            {line}
+                                        </div>
+                                    );
                                 }
                             }
                         })}
-                    </pre>
+                    </div>
                 ) : (
                     <p className="text-center text-gray-400 mt-6">אין תוכן לשיר</p>
                 )}
@@ -136,6 +137,7 @@ const LivePlayer = () => {
             </div>
         </div>
     );
+
 };
 
 export default LivePlayer;
