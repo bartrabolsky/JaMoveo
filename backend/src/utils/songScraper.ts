@@ -85,6 +85,18 @@ export const getSongContentFromTab4U = async (link: string) => {
         });
 
         const $ = cheerio.load(contentHtml);
+
+        const rawLines: string[] = [];
+
+        $('table tr').each((_: number, elem: any) => {
+            const rowText = $(elem).text().trim();
+            if (rowText) {
+                rawLines.push(rowText);
+            }
+        });
+
+        const rawText = rawLines.join('\n');
+
         const chordsLines: string[] = [];
         const lyricsLines: string[] = [];
 
@@ -99,16 +111,6 @@ export const getSongContentFromTab4U = async (link: string) => {
         const chords = chordsLines.join('\n');
         const lyrics = lyricsLines.join('\n');
 
-        const maxLines = Math.max(chordsLines.length, lyricsLines.length);
-        const rawLines: string[] = [];
-
-        for (let i = 0; i < maxLines; i++) {
-            rawLines.push(chordsLines[i] || '');
-            rawLines.push(lyricsLines[i] || '');
-        }
-
-        const rawText = rawLines.join('\n');
-
         return {
             contentHtml,
             chords,
@@ -122,6 +124,7 @@ export const getSongContentFromTab4U = async (link: string) => {
         await browser.close();
     }
 };
+
 
 
 // Extract raw text (chords and lyrics) from HTML using cheerio
