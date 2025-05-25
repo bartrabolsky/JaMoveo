@@ -9,7 +9,6 @@ export const useUser = () => {
         const user = JSON.parse(userData);
         return { user };
     } catch (e) {
-        console.error("Invalid user data in localStorage");
         return { user: null };
     }
 };
