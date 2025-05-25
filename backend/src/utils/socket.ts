@@ -8,6 +8,7 @@ export const setupSocket = (server: HTTPServer): void => {
         cors: {
             origin: '*',
             methods: ['GET', 'POST'],
+            credentials: true
         },
     });
 

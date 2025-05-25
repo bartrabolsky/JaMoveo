@@ -59,7 +59,6 @@ const LivePlayer = () => {
 
     const isVocals = user.instrument === 'vocals';
 
-    // ... כל ההתחלה כמו בקוד שלך עד return
 
     return (
         <div
@@ -93,7 +92,6 @@ const LivePlayer = () => {
                     <div style={{ fontFamily: '"Fira Mono", monospace', fontSize: '1.1rem', lineHeight: '1.8rem', marginBottom: '4rem' }}>
                         {currentSong.rawText.split('\n').map((line, idx) => {
                             if (isVocals) {
-                                // vocals - רק מילים (שורות אי זוגיות, אינדקס אי זוגי)
                                 if (idx % 2 === 1) {
                                     return (
                                         <div key={idx} style={{ padding: '2px 0' }}>
@@ -104,7 +102,6 @@ const LivePlayer = () => {
                                     return null;
                                 }
                             } else {
-                                // שחקנים אחרים - אקורדים (שורות זוגיות) בצבע מיוחד + מילים רגילות (אי זוגיות)
                                 if (idx % 2 === 0) {
                                     return (
                                         <div key={idx} style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>

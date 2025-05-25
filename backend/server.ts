@@ -23,7 +23,9 @@ if (!MONGO_URI) {
     process.exit(1);
 }
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://jamoveo-frontend-usy5.onrender.com']
+}));
 app.use(express.json());
 
 app.use('/api', authRoutes);
