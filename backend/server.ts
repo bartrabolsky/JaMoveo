@@ -30,9 +30,9 @@ app.use('/api', authRoutes);
 app.use('/api', songRoutes);
 
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('hello backend is running');
-});
+// app.get('/', (req: Request, res: Response) => {
+//     res.send('hello backend is running');
+// });
 
 mongoose.connect(MONGO_URI)
     .then(() => {

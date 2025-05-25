@@ -6,7 +6,7 @@ import { getSongContentFromTab4U } from './songScraper';
 export const setupSocket = (server: HTTPServer): void => {
     const io = new SocketIOServer(server, {
         cors: {
-            origin: 'http://localhost:3000',
+            origin: '*',
             methods: ['GET', 'POST'],
         },
     });
