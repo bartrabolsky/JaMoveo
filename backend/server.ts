@@ -24,7 +24,7 @@ if (!MONGO_URI) {
 }
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://jamoveo-frontend-usy5.onrender.com']
+    origin: '*'
 }));
 app.use(express.json());
 
