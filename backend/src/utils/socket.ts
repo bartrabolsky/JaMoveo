@@ -12,8 +12,6 @@ export const setupSocket = (server: HTTPServer): void => {
         },
     });
 
-    console.log('Socket.IO server initialized');
-
     io.on('connection', (socket) => {
         console.log('Socket connected:', socket.id);
 
@@ -23,11 +21,9 @@ export const setupSocket = (server: HTTPServer): void => {
         });
 
         socket.on('select_song', async (songData) => {
-            console.log('Admin selected song:', songData);
 
             try {
                 const songContent = await getSongContentFromTab4U(songData.link);
-                console.log('rawText length:', songContent.rawText.length);
 
                 const fullSong = {
                     ...songData,
@@ -36,7 +32,6 @@ export const setupSocket = (server: HTTPServer): void => {
                 };
 
                 io.emit('song_selected', fullSong);
-                console.log('Broadcasted full song to all users');
             } catch (error) {
                 console.error('Failed to fetch full song content:', error);
                 socket.emit('song_error', 'Could not load song content.');
@@ -45,7 +40,6 @@ export const setupSocket = (server: HTTPServer): void => {
 
 
         socket.on('quit_song', () => {
-            console.log('Admin quit the song');
             io.emit('quit_song');
         });
 

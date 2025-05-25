@@ -13,7 +13,6 @@ const LiveAdmin = () => {
     // Listen for 'song_selected' event to update current song
     useEffect(() => {
         socket.on('song_selected', (songData) => {
-            console.log('Admin received song:', songData);
             setCurrentSong(songData);
         });
         return () => {
@@ -47,7 +46,7 @@ const LiveAdmin = () => {
         navigate('/admin');
     };
 
-    if (!user) return <p className="text-center text-white mt-10">Loading user...</p>;
+    // if (!user) return <p className="text-center text-white mt-10">Loading user...</p>;
     if (!currentSong) return <p className="text-center text-white mt-10">Waiting for song...</p>;
 
     return (

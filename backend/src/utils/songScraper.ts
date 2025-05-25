@@ -45,8 +45,6 @@ export const searchSongsTab4U = async (query: string) => {
             }).filter(song => song.title && song.link);
         });
 
-        console.log(`puppeteer found ${results.length} results`);
-        console.log("First result:", results[0]);
         return results;
     } catch (error: any) {
         console.error('puppeteer error:', error.message);
@@ -130,7 +128,6 @@ export const getSongContentFromTab4U = async (link: string) => {
 // Extract raw text (chords and lyrics) from HTML using cheerio
 export const extractRawText = (html: string): string => {
     if (!html) {
-        console.error('No HTML provided to extractRawText');
         return '';
     }
 
