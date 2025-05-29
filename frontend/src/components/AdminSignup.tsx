@@ -23,7 +23,7 @@ function AdminSignup() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin-signup', {
+            const response = await fetch('https://jamoveo-backend-bo9a.onrender.com/api/admin-signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
