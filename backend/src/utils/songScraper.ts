@@ -17,16 +17,16 @@ export const searchSongsTab4U = async (query: string) => {
             waitUntil: 'networkidle2'
         });
 
-        await page.waitForSelector('#searchText', { timeout: 15000 });
+        await page.waitForSelector('#searchText', { timeout: 60000 });
         await page.type('#searchText', query);
 
-        await page.waitForSelector('input[aria-label="חפש את מה שהקלדתי"]', { timeout: 10000 });
+        await page.waitForSelector('input[aria-label="חפש את מה שהקלדתי"]', { timeout: 60000 });
         await Promise.all([
             page.waitForNavigation({ waitUntil: 'networkidle2' }),
             page.click('input[aria-label="חפש את מה שהקלדתי"]')
         ]);
 
-        await page.waitForSelector('div.ruSongUnit', { timeout: 10000 });
+        await page.waitForSelector('div.ruSongUnit', { timeout: 60000 });
         // Extract song info from page DOM
         const results = await page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll('div.ruSongUnit'));
@@ -64,7 +64,7 @@ export const getSongContentFromTab4U = async (link: string) => {
         const page = await browser.newPage();
         await page.goto(link, { waitUntil: 'networkidle2' });
 
-        await page.waitForSelector('#songContentTPL', { timeout: 10000 });
+        await page.waitForSelector('#songContentTPL', { timeout: 60000 });
 
         const contentHtml = await page.evaluate(() => {
             const container = document.querySelector('#songContentTPL');
