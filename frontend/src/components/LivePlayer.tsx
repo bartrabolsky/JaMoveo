@@ -90,14 +90,12 @@ const LivePlayer = () => {
                 {(currentSong.chords || currentSong.lyrics) ? (
                     <div style={{ fontFamily: '"Fira Mono", monospace', fontSize: '1.1rem', lineHeight: '1.8rem', marginBottom: '4rem' }}>
                         {isVocals ? (
-                            // Vocals see only lyrics
                             (currentSong.lyrics ?? '').split('\n').map((line, idx) => (
                                 <div key={idx} style={{ padding: '2px 0' }}>
                                     {line}
                                 </div>
                             ))
                         ) : (
-                            // Others see chords + lyrics
                             (currentSong.chords ?? '').split('\n').map((chordLine, idx) => (
                                 <div key={`chord-${idx}`} style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>
                                     {chordLine}
@@ -114,7 +112,6 @@ const LivePlayer = () => {
                 )}
             </div>
 
-            {/* כפתור גלילה אוטומטית נשאר */}
             <div className="fixed bottom-6 left-0 right-0 flex justify-center gap-6 px-4">
                 <button
                     onClick={() => setAutoScroll(!autoScroll)}
