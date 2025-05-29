@@ -23,10 +23,8 @@ if (!MONGO_URI) {
     process.exit(1);
 }
 
-const FRONTEND_ORIGIN = 'https://jamoveo-frontend-usy5.onrender.com';
-
 app.use(cors({
-    origin: FRONTEND_ORIGIN,
+    origin: '*',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true

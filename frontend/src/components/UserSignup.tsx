@@ -4,6 +4,7 @@ import { socket } from '../services/socket';
 
 function UserSignup() {
     const navigate = useNavigate();
+    const apiUrl = process.env.REACT_APP_API_URL;
     // State to hold form data
     const [formData, setFormData] = useState({
         username: '',
@@ -25,7 +26,7 @@ function UserSignup() {
 
         try {
             // Call backend signup endpoint
-            const response = await fetch('https://jamoveo-production-4766.up.railway.app/api/signup', {
+            const response = await fetch(`${apiUrl}/api/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

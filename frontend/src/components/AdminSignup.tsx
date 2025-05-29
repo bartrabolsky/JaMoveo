@@ -4,6 +4,7 @@ import { socket } from '../services/socket';
 
 function AdminSignup() {
     const navigate = useNavigate();
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const [formData, setFormData] = useState({
         username: '',
@@ -23,7 +24,7 @@ function AdminSignup() {
         setMessage('');
 
         try {
-            const response = await fetch('https://jamoveo-production-4766.up.railway.app/api/admin-signup', {
+            const response = await fetch(`${apiUrl}/api/admin-signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
