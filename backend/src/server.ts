@@ -25,9 +25,6 @@ if (!MONGO_URI) {
 
 app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
-    credentials: true
 }));
 app.use(express.json());
 
