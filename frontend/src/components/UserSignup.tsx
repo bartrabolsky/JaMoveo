@@ -25,7 +25,7 @@ function UserSignup() {
 
         try {
             // Call backend signup endpoint
-            const response = await fetch('https://jamoveo-backend-bo9a.onrender.com/api/signup', {
+            const response = await fetch('https://jamoveo-production-4766.up.railway.app/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

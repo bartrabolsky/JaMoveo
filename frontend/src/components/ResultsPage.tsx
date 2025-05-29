@@ -18,7 +18,7 @@ const ResultsPage = () => {
     useEffect(() => {
         const query = localStorage.getItem('searchQuery') || '';
         // Fetch songs from backend API using the query
-        fetch(`https://jamoveo-backend-bo9a.onrender.com/api/search-songs?query=${encodeURIComponent(query)}`)
+        fetch(`https://jamoveo-production-4766.up.railway.app/api/search-songs?query=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
