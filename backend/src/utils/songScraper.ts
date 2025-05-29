@@ -1,109 +1,94 @@
-import chromium from 'chrome-aws-lambda';
-import puppeteer from 'puppeteer-core';
-const cheerio = require('cheerio');
+import * as cheerio from 'cheerio';
 
-// Search songs on Tab4U site using Puppeteer to automate browser
 export const searchSongsTab4U = async (query: string) => {
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath,
-        headless: chromium.headless,
-    });
-
-
     try {
-        const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
+        // Build the search URL with the query parameter
+        const url = `https://www.tab4u.com/resultsSimple?tab=songs&q=${encodeURIComponent(query)}`;
 
-        console.log('Navigating to Tab4U homepage...');
-        await page.goto('https://www.tab4u.com/', {
-            waitUntil: 'networkidle2'
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'Accept': 'text/html',
+            },
         });
 
-        await page.waitForSelector('#searchText', { timeout: 60000 });
-        await page.type('#searchText', query);
+        if (!res.ok) {
+            throw new Error(`Failed to fetch search page: ${res.statusText}`);
+        }
 
-        await page.waitForSelector('input[aria-label="חפש את מה שהקלדתי"]', { timeout: 60000 });
-        await Promise.all([
-            page.waitForNavigation({ waitUntil: 'networkidle2' }),
-            page.click('input[aria-label="חפש את מה שהקלדתי"]')
-        ]);
+        const html = await res.text();
+        // Load the HTML into cheerio for parsing
+        const $ = cheerio.load(html);
 
-        await page.waitForSelector('div.ruSongUnit', { timeout: 60000 });
-        // Extract song info from page DOM
-        const results = await page.evaluate(() => {
-            const rows = Array.from(document.querySelectorAll('div.ruSongUnit'));
+        const results: Array<{ title: string; artist: string; link: string; image: string }> = [];
+        // Iterate over each song container div
+        $('div.ruSongUnit').each((_, elem) => {
+            const el = $(elem);
 
-            return rows.map(row => {
-                const title = row.querySelector('.sNameI19')?.textContent?.trim() || '';
-                const artist = row.querySelector('.aNameI19')?.textContent?.trim() || '';
-                const relativeLink = row.querySelector('a.ruSongLink')?.getAttribute('href') || '';
-                const link = relativeLink ? `https://www.tab4u.com/${relativeLink}` : '';
+            const title = el.find('.sNameI19').text().trim();
+            const artist = el.find('.aNameI19').text().trim();
+            const relativeLink = el.find('a.ruSongLink').attr('href') || '';
+            const link = relativeLink ? `https://www.tab4u.com/${relativeLink}` : '';
 
-                const style = row.querySelector('.ruArtPhoto')?.getAttribute('style') || '';
-                const match = style.match(/url\(['"]?(.*?)['"]?\)/);
-                const image = match ? `https://www.tab4u.com${match[1]}` : '';
+            const style = el.find('.ruArtPhoto').attr('style') || '';
+            const match = style.match(/url\(['"]?(.*?)['"]?\)/);
+            const image = match ? `https://www.tab4u.com${match[1]}` : '';
 
-                return { title, artist, link, image };
-            }).filter(song => song.title && song.link);
+            if (title && link) {
+                results.push({ title, artist, link, image });
+            }
         });
 
         return results;
-    } catch (error: any) {
-        console.error('puppeteer error:', error.message);
+    } catch (error) {
+        console.error('Error fetching search results:', error);
         throw error;
-    } finally {
-        await browser.close();
     }
 };
-// Fetch full song content HTML and raw text from a given song page link
+
 export const getSongContentFromTab4U = async (link: string) => {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
     try {
-        const page = await browser.newPage();
-        await page.goto(link, { waitUntil: 'networkidle2' });
-
-        await page.waitForSelector('#songContentTPL', { timeout: 60000 });
-
-        const contentHtml = await page.evaluate(() => {
-            const container = document.querySelector('#songContentTPL');
-            if (!container) return '';
-
-            const elements = container.querySelectorAll('[onmouseover], [onmouseout], [onclick], [onmouseenter], [onmouseleave]');
-            elements.forEach(el => {
-                el.removeAttribute('onmouseover');
-                el.removeAttribute('onmouseout');
-                el.removeAttribute('onclick');
-                el.removeAttribute('onmouseenter');
-                el.removeAttribute('onmouseleave');
-            });
-
-            return container.innerHTML;
+        // Fetch the full song page HTML
+        const res = await fetch(link, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'Accept': 'text/html',
+            },
         });
 
-        const $ = cheerio.load(contentHtml);
+        if (!res.ok) {
+            throw new Error(`Failed to fetch song page: ${res.statusText}`);
+        }
+
+        const html = await res.text();
+        const $ = cheerio.load(html);
+        // Select the main song content container
+        const songContent = $('#songContentTPL');
+        if (!songContent.length) {
+            throw new Error('Could not find song content!');
+        }
+
+        songContent.find('[onmouseover], [onmouseout], [onclick], [onmouseenter], [onmouseleave]').each((_, el) => {
+            $(el).removeAttr('onmouseover onmouseout onclick onmouseenter onmouseleave');
+        });
+
+        const contentHtml = songContent.html() || '';
 
         const rawLines: string[] = [];
-
-        $('table tr').each((_: number, elem: any) => {
-            const rowText = $(elem).text().trim();
+        songContent.find('table tr').each((_, tr) => {
+            const rowText = $(tr).text().trim();
             if (rowText) {
                 rawLines.push(rowText);
             }
         });
-
         const rawText = rawLines.join('\n');
 
         const chordsLines: string[] = [];
         const lyricsLines: string[] = [];
 
-        $('table tr').each((_: number, elem: any) => {
-            const chords = $(elem).find('td.chords, td.chords_en').text().trim();
-            const lyrics = $(elem).find('td.song').text().trim();
+        songContent.find('table tr').each((_, tr) => {
+            const chords = $(tr).find('td.chords, td.chords_en').text().trim();
+            const lyrics = $(tr).find('td.song').text().trim();
 
             chordsLines.push(chords);
             lyricsLines.push(lyrics);
@@ -116,48 +101,10 @@ export const getSongContentFromTab4U = async (link: string) => {
             contentHtml,
             chords,
             lyrics,
-            rawText
+            rawText,
         };
     } catch (error) {
         console.error('Error scraping song content:', error);
         return { contentHtml: '', chords: '', lyrics: '', rawText: '' };
-    } finally {
-        await browser.close();
     }
 };
-
-
-
-// Extract raw text (chords and lyrics) from HTML using cheerio
-export const extractRawText = (html: string): string => {
-    if (!html) {
-        return '';
-    }
-
-    try {
-        const $ = cheerio.load(html);
-        const lines: string[] = [];
-
-        $('table tr').each((_: number, elem: any) => {
-            const chords = $(elem).find('td.chords, td.chords_en').text().trim();
-            const lyrics = $(elem).find('td.song').text().trim();
-
-            if (chords || lyrics) {
-                lines.push(chords);
-                lines.push(lyrics);
-            }
-        });
-
-        if (lines.length === 0) {
-            console.warn('No lines extracted with updated selectors');
-        }
-
-        return lines.join('\n');
-    } catch (error) {
-        console.error('Failed to load HTML with cheerio:', error);
-        return '';
-    }
-};
-
-
-
