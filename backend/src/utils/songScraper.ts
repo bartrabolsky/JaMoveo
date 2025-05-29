@@ -1,12 +1,15 @@
-import puppeteer from 'puppeteer';
+import chromium from 'chrome-aws-lambda';
+import puppeteer from 'puppeteer-core';
 const cheerio = require('cheerio');
 
 // Search songs on Tab4U site using Puppeteer to automate browser
 export const searchSongsTab4U = async (query: string) => {
     const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: chromium.args,
+        executablePath: await chromium.executablePath,
+        headless: chromium.headless,
     });
+
 
     try {
         const page = await browser.newPage();
