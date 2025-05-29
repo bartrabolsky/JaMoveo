@@ -28,6 +28,7 @@ const FRONTEND_ORIGIN = 'https://jamoveo-frontend-usy5.onrender.com';
 app.use(cors({
     origin: FRONTEND_ORIGIN,
     methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
     credentials: true
 }));
 app.use(express.json());
