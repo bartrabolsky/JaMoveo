@@ -10,6 +10,7 @@ const LiveAdmin = () => {
     const { user } = useUser();
     const navigate = useNavigate();
     const [autoScroll, setAutoScroll] = useState(false);
+
     // Listen for 'song_selected' event to update current song
     useEffect(() => {
         socket.on('song_selected', (songData) => {
@@ -19,6 +20,7 @@ const LiveAdmin = () => {
             socket.off('song_selected');
         };
     }, [setCurrentSong]);
+
     // Listen for 'quit_song' event to clear current song and navigate back
     useEffect(() => {
         socket.on('quit_song', () => {
@@ -29,6 +31,7 @@ const LiveAdmin = () => {
             socket.off('quit_song');
         };
     }, [navigate, setCurrentSong]);
+
     // Handle auto-scrolling when enabled
     useEffect(() => {
         let interval: any;
@@ -46,7 +49,6 @@ const LiveAdmin = () => {
         navigate('/admin');
     };
 
-    // if (!user) return <p className="text-center text-white mt-10">Loading user...</p>;
     if (!currentSong) return <p className="text-center text-white mt-10">Waiting for song...</p>;
 
     return (
@@ -71,8 +73,8 @@ const LiveAdmin = () => {
                     {currentSong.title} / {currentSong.artist}
                 </h1>
 
-                {currentSong.rawText ? (
-                    <pre
+                {(currentSong.chords || currentSong.lyrics) ? (
+                    <div
                         style={{
                             fontFamily: '"Fira Mono", monospace',
                             fontSize: '1.1rem',
@@ -85,41 +87,38 @@ const LiveAdmin = () => {
                             letterSpacing: '0.05em',
                         }}
                     >
-                        {currentSong.rawText.split('\n').map((line, idx) => {
-                            if (idx % 2 === 0) {
-                                return (
-                                    <div key={idx} style={{ color: '#00e5ff', fontWeight: '700' }}>
-                                        {line}
-                                    </div>
-                                );
-                            } else {
-                                return <div key={idx}>{line}</div>;
-                            }
-                        })}
-                    </pre>
+                        {(currentSong.chords ?? '').split('\n').map((chordLine, idx) => (
+                            <div key={idx} style={{ marginBottom: 12 }}>
+                                <div style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>
+                                    {chordLine}
+                                </div>
+                                <div style={{ color: '#fff', padding: '2px 0' }}>
+                                    {(currentSong.lyrics ?? '').split('\n')[idx] || ''}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
-                    <p className="text-center text-gray-400 mt-6">אין תוכן לשיר</p>
+                    <p className="text-center text-gray-400 mt-6">There is no content to the song</p>
                 )}
             </div>
 
             <div className="fixed bottom-6 left-0 right-0 flex justify-center gap-6 px-4">
-                <div className="fixed bottom-6 left-0 right-0 flex justify-center gap-6 px-4">
-                    <button
-                        onClick={() => setAutoScroll(!autoScroll)}
-                        className="bg-gray-300 text-black font-semibold text-base rounded-md px-10 py-3 shadow-md hover:bg-gray-400 transition-transform transform active:scale-95"
-                        aria-label={autoScroll ? 'Stop automatic scrolling' : 'Start automatic scrolling'}
-                    >
-                        {autoScroll ? 'Stop' : 'Scroll'}
-                    </button>
+                <button
+                    onClick={() => setAutoScroll(!autoScroll)}
+                    className="bg-gray-300 text-black font-semibold text-base rounded-md px-10 py-3 shadow-md hover:bg-gray-400 transition-transform transform active:scale-95"
+                    aria-label={autoScroll ? 'Stop automatic scrolling' : 'Start automatic scrolling'}
+                >
+                    {autoScroll ? 'Stop' : 'Scroll'}
+                </button>
 
-                    <button
-                        onClick={handleQuit}
-                        className="bg-red-600 hover:bg-red-700 text-white font-semibold text-base rounded-md px-10 py-3 shadow-md transition-transform transform active:scale-95"
-                        aria-label="Quit rehearsal"
-                    >
-                        Quit
-                    </button>
-                </div>
+                <button
+                    onClick={handleQuit}
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold text-base rounded-md px-10 py-3 shadow-md transition-transform transform active:scale-95"
+                    aria-label="Quit rehearsal"
+                >
+                    Quit
+                </button>
             </div>
         </div>
     );

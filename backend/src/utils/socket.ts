@@ -21,7 +21,6 @@ export const setupSocket = (server: HTTPServer): void => {
         });
 
         socket.on('select_song', async (songData) => {
-
             try {
                 const songContent = await getSongContentFromTab4U(songData.link);
 
@@ -29,6 +28,8 @@ export const setupSocket = (server: HTTPServer): void => {
                     ...songData,
                     contentHtml: songContent.contentHtml,
                     rawText: songContent.rawText,
+                    chords: songContent.chords,    // <-- הוסף את זה
+                    lyrics: songContent.lyrics,    // <-- ואת זה
                 };
 
                 io.emit('song_selected', fullSong);
@@ -37,6 +38,7 @@ export const setupSocket = (server: HTTPServer): void => {
                 socket.emit('song_error', 'Could not load song content.');
             }
         });
+
 
 
         socket.on('quit_song', () => {

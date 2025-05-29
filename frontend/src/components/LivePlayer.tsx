@@ -59,17 +59,18 @@ const LivePlayer = () => {
 
     const isVocals = user.instrument === 'vocals';
 
-
     return (
         <div
             ref={scrollContainerRef}
             className="min-h-screen text-white p-6 overflow-y-auto font-sans text-base sm:text-lg"
             style={{
                 direction: 'rtl',
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap',
                 background: `
-                linear-gradient(135deg, #1f2937 0%, #3b4252 100%),
-                repeating-radial-gradient(circle at 0 0, #2c3e50 0, #2c3e50 2px, #1f2937 3px, #1f2937 5px)
-            `,
+        linear-gradient(135deg, #1f2937 0%, #3b4252 100%),
+        repeating-radial-gradient(circle at 0 0, #2c3e50 0, #2c3e50 2px, #1f2937 3px, #1f2937 5px)
+      `,
                 backgroundBlendMode: 'overlay',
                 backgroundRepeat: 'no-repeat',
                 backgroundAttachment: 'fixed',
@@ -82,47 +83,38 @@ const LivePlayer = () => {
             }}
         >
             <div className="max-w-4xl mx-auto">
-                <h1
-                    className="text-3xl font-extrabold text-center mb-6 tracking-wide text-yellow-400 border-b border-gray-600 pb-4 select-none"
-                >
+                <h1 className="text-3xl font-extrabold text-center mb-6 tracking-wide text-yellow-400 border-b border-gray-600 pb-4 select-none">
                     {currentSong.title} / {currentSong.artist}
                 </h1>
 
-                {currentSong.rawText ? (
+                {(currentSong.chords || currentSong.lyrics) ? (
                     <div style={{ fontFamily: '"Fira Mono", monospace', fontSize: '1.1rem', lineHeight: '1.8rem', marginBottom: '4rem' }}>
-                        {currentSong.rawText.split('\n').map((line, idx) => {
-                            if (isVocals) {
-                                if (idx % 2 === 1) {
-                                    return (
-                                        <div key={idx} style={{ padding: '2px 0' }}>
-                                            {line}
-                                        </div>
-                                    );
-                                } else {
-                                    return null;
-                                }
-                            } else {
-                                if (idx % 2 === 0) {
-                                    return (
-                                        <div key={idx} style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>
-                                            {line}
-                                        </div>
-                                    );
-                                } else {
-                                    return (
-                                        <div key={idx} style={{ padding: '2px 0' }}>
-                                            {line}
-                                        </div>
-                                    );
-                                }
-                            }
-                        })}
+                        {isVocals ? (
+                            // Vocals see only lyrics
+                            (currentSong.lyrics ?? '').split('\n').map((line, idx) => (
+                                <div key={idx} style={{ padding: '2px 0' }}>
+                                    {line}
+                                </div>
+                            ))
+                        ) : (
+                            // Others see chords + lyrics
+                            (currentSong.chords ?? '').split('\n').map((chordLine, idx) => (
+                                <div key={`chord-${idx}`} style={{ color: '#00e5ff', fontWeight: '700', padding: '2px 0' }}>
+                                    {chordLine}
+                                    <br />
+                                    <span style={{ color: '#eee', fontWeight: 'normal' }}>
+                                        {(currentSong.lyrics ?? '').split('\n')[idx] || ''}
+                                    </span>
+                                </div>
+                            ))
+                        )}
                     </div>
                 ) : (
                     <p className="text-center text-gray-400 mt-6">אין תוכן לשיר</p>
                 )}
             </div>
 
+            {/* כפתור גלילה אוטומטית נשאר */}
             <div className="fixed bottom-6 left-0 right-0 flex justify-center gap-6 px-4">
                 <button
                     onClick={() => setAutoScroll(!autoScroll)}
@@ -136,5 +128,4 @@ const LivePlayer = () => {
     );
 
 };
-
 export default LivePlayer;
